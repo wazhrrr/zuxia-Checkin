@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-自动打卡 v1.3 · OAuth2 自动登录 · 限流自动重试
+自动打卡 v1.4 · OAuth2 自动登录 · 限流自动重试
 =====================================================================
 OAuth2 Bearer Token 认证。
 脚本会自动取得 access_token 并在每个请求上带 Authorization: Bearer。
@@ -65,9 +65,9 @@ BASE_URL = "https://ai.cqzuxia.com"
 # 传目录时递归扫描并随机挑图。
 # 平台
 # Windows
-IMAGE_DIRS = [r"E:\图片\打卡"]
+# IMAGE_DIRS = [r"E:\图片\打卡"]
 # Linux
-# IMAGE_DIRS = ["~/Pictures/打卡"]
+IMAGE_DIRS = ["~/pictures/打卡"]
 # Android / Termux（需先授权）
 # IMAGE_DIRS = ["~/storage/emulated/0/Pictures/打卡"]
 
@@ -128,7 +128,7 @@ AUTH_HELP = """
      登录网站时 F12 -> 网络 -> 找到 POST /connect/token -> 响应(Response)
      -> 复制 JSON 里的 refresh_token 值，填到 REFRESH_TOKEN = "" 里。
 
-  B. USERNAME + PASSWORD（登录页有验证码时再填 LOGIN_CODE，或运行时按提示输入）
+  B. USERNAME + PASSWORD（站点无需验证码，填这两项即可）
 
   C. ACCESS_TOKEN（同一响应里的 access_token，5 小时内有效，过期后会自动走 A）
 
@@ -355,12 +355,8 @@ def refresh_access_token(session, refresh: str) -> str:
 def login_password(session) -> str:
     if not (USERNAME and PASSWORD):
         raise AuthError("未配置 USERNAME / PASSWORD")
+    # 该站点登录无需验证码；保留 code 字段以匹配抓包中的表单结构，值取 LOGIN_CODE（默认空）
     code = LOGIN_CODE
-    if not code and sys.stdin.isatty():
-        try:
-            code = input("请输入登录页验证码（页面没有验证码就直接回车）：").strip()
-        except EOFError:
-            code = ""
     form = {
         "username": USERNAME,
         "password": PASSWORD,
@@ -376,7 +372,7 @@ def login_password(session) -> str:
         obj = request(session, "POST", TOKEN_PATH, data=form,
                       echo={"grant_type": "password"}, dry=False, label="password_login")
     except (ApiError, AuthError) as exc:
-        raise AuthError(f"账号密码登录失败（{exc}）；若需要验证码请填 LOGIN_CODE") from exc
+        raise AuthError(f"账号密码登录失败（{exc}）；请检查 USERNAME / PASSWORD") from exc
     return store_token(obj)
 
 
