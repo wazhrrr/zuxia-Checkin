@@ -128,7 +128,7 @@ AUTH_HELP = """
      登录网站时 F12 -> 网络 -> 找到 POST /connect/token -> 响应(Response)
      -> 复制 JSON 里的 refresh_token 值，填到 REFRESH_TOKEN = "" 里。
 
-  B. USERNAME + PASSWORD（站点无需验证码，填这两项即可）
+  B. USERNAME + PASSWORD（站点无需验证码，填两项即可）
 
   C. ACCESS_TOKEN（同一响应里的 access_token，5 小时内有效，过期后会自动走 A）
 
